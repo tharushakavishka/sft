@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 - SFT | බලය Videos</title>
+    <!-- Use Tailwind CSS for easy and responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for a better look with red and white theme */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;700&display=swap');
+        body {
+            font-family: 'Noto Sans Sinhala', sans-serif;
+        }
+        .active-video {
+            background-color: #ef4444; /* red-500 */
+            color: white;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
+            transform: scale(1.02);
+        }
+        .folder-list-container {
+            transition: all 0.5s ease-in-out;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+        }
+        .folder-list-container.show {
+            max-height: 100vh;
+            opacity: 1;
+        }
+        /* Style for the Add buttons */
+        .add-btn {
+            background-color: #dc2626; /* red-600 */
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .add-btn:hover {
+            background-color: #b91c1c; /* red-700 */
+            box-shadow: 0 4px 14px rgba(220, 38, 38, 0.4);
+        }
+        /* Style for the form container transition */
+        .form-container {
+            transition: all 0.5s ease-in-out;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+        }
+        .form-container.show {
+            max-height: 300px;
+            opacity: 1;
+        }
+        /* CSS to handle the icon rotation */
+        .icon-plus {
+            transition: transform 0.3s ease;
+            width: 1.25rem; /* Smaller icon size */
+            height: 1.25rem; /* Smaller icon size */
+        }
+        .icon-plus.minus {
+            transform: rotate(45deg);
+        }
+        .icon-chevron {
+            transition: transform 0.3s ease;
+            width: 1.25rem; /* Smaller icon size */
+            height: 1.25rem; /* Smaller icon size */
+        }
+        .icon-chevron.down {
+            transform: rotate(90deg);
+        }
+    </style>
+</head>
+<body class="bg-white dark:bg-slate-900 text-slate-900 dark:text-white flex flex-col min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-red-500 shadow-xl p-4 sticky top-0 z-10">
+        <div class="container mx-auto">
+            <h1 class="text-2xl lg:text-3xl font-bold text-center text-white">2026 - SFT | බලය Videos</h1>
+        </div>
+    </header>
+
+    <!-- Main content area with video player and list -->
+    <main class="container mx-auto p-4 flex-grow grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Video Player Section -->
+        <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-xl transition-all duration-300">
+            <div class="video-container relative w-full pt-[56.25%] rounded-lg overflow-hidden">
+                <!-- The iframe is where the YouTube video will be embedded -->
+                <iframe id="video-player"
+                        class="absolute top-0 left-0 w-full h-full rounded-lg"
+                        src="https://www.youtube.com/embed/hVhFGjCgNpk?controls=1&rel=0&showinfo=0&iv_load_policy=3&modestbranding=1"
+                        title="YouTube video player"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen>
+                </iframe>
+            </div>
+            <h2 id="video-title" class="text-xl lg:text-2xl font-bold mt-4 text-center">2026 - SFT | බලය - Day 01</h2>
+        </div>
+
+        <!-- Video List Section -->
+        <div class="lg:col-span-1 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-xl overflow-y-auto max-h-[80vh]">
+            
+            <!-- Icon buttons for adding folders and videos -->
+            <div class="flex justify-center gap-4 mb-4">
+                <button id="toggle-add-folder-btn" class="add-btn rounded-full p-3 w-12 h-12 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 icon-plus">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                </button>
+                <button id="toggle-add-video-btn" class="add-btn rounded-full p-3 w-12 h-12 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 icon-plus">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                </button>
+            </div>
+
+            <h3 class="text-xl font-semibold mb-4 text-center">වීඩියෝ ලැයිස්තුව</h3>
+            
+            <!-- Folder Creation Section (form) -->
+            <div id="add-folder-form-container" class="form-container p-4 border rounded-lg border-red-200 dark:border-red-900 mb-4">
+                <h4 class="text-lg font-bold mb-2 text-center">ෆෝල්ඩර විස්තර ඇතුළත් කරන්න</h4>
+                <input type="text" id="new-folder-name" placeholder="ෆෝල්ඩරයේ නම" class="w-full p-2 mb-2 rounded border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
+                <button id="add-folder-btn" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200">
+                    සාදන්න
+                </button>
+            </div>
+
+            <!-- Video Addition Section (form) -->
+            <div id="add-video-form-container" class="form-container p-4 border rounded-lg border-red-200 dark:border-red-900 mb-4">
+                <h4 class="text-lg font-bold mb-2 text-center">වීඩියෝ විස්තර ඇතුළත් කරන්න</h4>
+                
+                <!-- Dynamic Folder Selection Dropdown -->
+                <select id="folder-select" class="w-full p-2 mb-2 rounded border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
+                </select>
+
+                <input type="text" id="new-video-title" placeholder="වීඩියෝවේ නම" class="w-full p-2 mb-2 rounded border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
+                <input type="text" id="new-video-id" placeholder="YouTube වීඩියෝ ID" class="w-full p-2 mb-2 rounded border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
+                <button id="add-video-btn" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200">
+                    එකතු කරන්න
+                </button>
+            </div>
+            
+            <!-- Dynamic Folders Container -->
+            <div id="folders-container" class="space-y-3">
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const videoPlayer = document.getElementById('video-player');
+            const videoTitle = document.getElementById('video-title');
+            const newVideoTitleInput = document.getElementById('new-video-title');
+            const newVideoIdInput = document.getElementById('new-video-id');
+            const addVideoBtn = document.getElementById('add-video-btn');
+            const toggleAddVideoBtn = document.getElementById('toggle-add-video-btn');
+            const addVideoFormContainer = document.getElementById('add-video-form-container');
+            const toggleAddFolderBtn = document.getElementById('toggle-add-folder-btn');
+            const addFolderFormContainer = document.getElementById('add-folder-form-container');
+            const newFolderNameInput = document.getElementById('new-folder-name');
+            const addFolderBtn = document.getElementById('add-folder-btn');
+            const folderSelect = document.getElementById('folder-select');
+            const foldersContainer = document.getElementById('folders-container');
+
+            // Initial data for pre-populated folders
+            const initialFolders = {
+                'balaya-folder': {
+                    name: 'බලය',
+                    videos: [
+                        { id: 'hVhFGjCgNpk', title: '2026 - SFT | බලය - Day 01' },
+                        { id: 'fdqp1s3cJ3A', title: '2026 - SFT | බලය - Day 02' },
+                        { id: 'Rn3_dSsiB9E', title: '2026 - SFT | බලය - Day 03' },
+                        { id: 'vB1EVw51tyc', title: '2026 - SFT | බලය - Day 04' },
+                        { id: 'jdsiNr4FaC8', title: '2026 - SFT | බලය - Day 05' },
+                        { id: 'wS9DvGqPIig', title: '2026 - SFT | බලය - Day 06' },
+                        { id: 'QyREVrtp7G4', title: '2026 - SFT | බලය - Day 07' },
+                        { id: 'TYo-MP4I5VU', title: '2026 - SFT | බලය - Day 08' },
+                        { id: 'QIE9iuuv304', title: '2026 - SFT | බලය - Day 09' },
+                        { id: 'RQl7iX3RAKQ', title: '2026 - SFT | බලය - Day 10' },
+                        { id: 'CjThjWIUFHM', title: '2026 - SFT | බලය - Day 11' },
+                        { id: 'VmyKXzYtam8', title: '2026 - SFT | බලය - Day 12' },
+                        { id: 'aGzThGufYMY', title: '2026 - SFT | බලය - Day 13 (A)' },
+                        { id: 'uhyluBMs1Z0', title: '2026 - SFT | බලය - Day 13 (B)' },
+                        { id: 'hjt4uZeAqNU', title: '2026 - SFT | බලය - Day 14' },
+                        { id: 'a8oMOwgbYvU', title: '2026 - SFT | බලය - Day 15' },
+                    ]
+                }
+            };
+            
+            // Function to handle video list item clicks
+            const handleVideoClick = (item) => {
+                const videoId = item.getAttribute('data-id');
+                const title = item.getAttribute('data-title');
+                const newUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&rel=0&showinfo=0&iv_load_policy=3&modestbranding=1`;
+
+                // Update the iframe's source
+                videoPlayer.src = newUrl;
+
+                // Update the video title below the player
+                videoTitle.textContent = title;
+
+                // Update the active class to highlight the selected video
+                document.querySelectorAll('.video-item').forEach(i => i.classList.remove('active-video'));
+                item.classList.add('active-video');
+            };
+
+            // Function to create and append a new video item to a folder list
+            const createVideoItem = (id, title, targetList) => {
+                const newItem = document.createElement('li');
+                newItem.setAttribute('data-id', id);
+                newItem.setAttribute('data-title', title);
+                newItem.classList.add('video-item', 'cursor-pointer', 'p-4', 'rounded-lg', 'transition-all', 'duration-200', 'hover:bg-red-100', 'dark:hover:bg-red-900');
+                newItem.innerHTML = `<span class="font-bold">${title}</span>`;
+                newItem.addEventListener('click', () => handleVideoClick(newItem));
+                targetList.appendChild(newItem);
+                return newItem;
+            };
+
+            // Function to create a new folder and its video list
+            const createFolder = (folderId, folderName, videos = []) => {
+                const folderContainer = document.createElement('div');
+                folderContainer.classList.add('folder-container');
+
+                const folderDiv = document.createElement('div');
+                folderDiv.id = folderId;
+                folderDiv.classList.add('cursor-pointer', 'p-4', 'rounded-lg', 'bg-red-200', 'dark:bg-red-800', 'font-bold', 'flex', 'justify-between', 'items-center', 'transition-all', 'duration-200', 'hover:bg-red-300', 'dark:hover:bg-red-700', 'mb-2');
+                folderDiv.innerHTML = `<span>${folderName}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 icon-chevron">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                    </svg>`;
+                folderContainer.appendChild(folderDiv);
+
+                const videoList = document.createElement('ul');
+                videoList.id = folderId.replace('-folder', '-video-list');
+                videoList.classList.add('folder-list-container', 'space-y-3', 'pl-4');
+                folderContainer.appendChild(videoList);
+
+                // Add videos to the new list
+                videos.forEach(video => createVideoItem(video.id, video.title, videoList));
+
+                // Add event listener for folder toggle
+                folderDiv.addEventListener('click', () => {
+                    videoList.classList.toggle('show');
+                    folderDiv.querySelector('.icon-chevron').classList.toggle('down');
+                });
+
+                foldersContainer.appendChild(folderContainer);
+                return videoList;
+            };
+
+            // Function to update the folder selection dropdown
+            const updateFolderSelect = () => {
+                folderSelect.innerHTML = '';
+                document.querySelectorAll('.folder-container > div').forEach(folderDiv => {
+                    const folderName = folderDiv.querySelector('span').textContent;
+                    const folderId = folderDiv.id.replace('-folder', '-video-list');
+                    const option = document.createElement('option');
+                    option.value = folderId;
+                    option.textContent = folderName;
+                    folderSelect.appendChild(option);
+                });
+            };
+
+            // Initialize folders from initial data
+            for (const id in initialFolders) {
+                const folder = initialFolders[id];
+                createFolder(id, folder.name, folder.videos);
+            }
+            updateFolderSelect();
+
+            // Initial video load and active state
+            const initialVideoItem = document.querySelector('.video-item');
+            if (initialVideoItem) {
+                handleVideoClick(initialVideoItem);
+                const initialFolder = initialVideoItem.closest('ul');
+                initialFolder.classList.add('show');
+                initialFolder.previousElementSibling.querySelector('.icon-chevron').classList.add('down');
+            }
+
+            // Event listener for "Add Folder" toggle button
+            toggleAddFolderBtn.addEventListener('click', () => {
+                addFolderFormContainer.classList.toggle('show');
+                toggleAddFolderBtn.querySelector('.icon-plus').classList.toggle('minus');
+            });
+
+            // Event listener for "Add Folder" button
+            addFolderBtn.addEventListener('click', () => {
+                const folderName = newFolderNameInput.value.trim();
+                if (folderName) {
+                    const folderId = `${folderName.toLowerCase().replace(/\s/g, '-')}-folder`;
+                    createFolder(folderId, folderName);
+                    updateFolderSelect();
+                    newFolderNameInput.value = '';
+                } else {
+                    console.log('Please enter a folder name.');
+                }
+            });
+
+            // Event listener for "Add Video" toggle button
+            toggleAddVideoBtn.addEventListener('click', () => {
+                addVideoFormContainer.classList.toggle('show');
+                toggleAddVideoBtn.querySelector('.icon-plus').classList.toggle('minus');
+            });
+
+            // Event listener for "Add Video" button
+            addVideoBtn.addEventListener('click', () => {
+                const newTitle = newVideoTitleInput.value.trim();
+                const newId = newVideoIdInput.value.trim();
+                const selectedFolderId = folderSelect.value;
+                const targetList = document.getElementById(selectedFolderId);
+
+                if (newTitle && newId && targetList) {
+                    const newItem = createVideoItem(newId, newTitle, targetList);
+
+                    newVideoTitleInput.value = '';
+                    newVideoIdInput.value = '';
+
+                    // Show the video list and update the folder icon for the selected folder
+                    if (!targetList.classList.contains('show')) {
+                        targetList.classList.add('show');
+                        const folderDiv = targetList.previousElementSibling;
+                        if (folderDiv) {
+                            folderDiv.querySelector('.icon-chevron').classList.add('down');
+                        }
+                    }
+
+                    // Automatically play the newly added video
+                    handleVideoClick(newItem);
+                } else {
+                    console.log('Please enter both a video title, a YouTube ID and select a folder.');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
