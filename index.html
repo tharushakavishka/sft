@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Combined Video and Folder Website</title>
-    <!-- Tailwind CSS භාවිතයෙන් නවීන පෙනුමක් ලබා දේ -->
+    <!-- Use Tailwind CSS for a modern look -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #121212; /* අඳුරු පසුබිම */
+            background-color: #121212; /* Dark background */
             color: #ffffff;
         }
         /* Custom scrollbar styles for a cleaner look */
@@ -22,39 +22,72 @@
             scrollbar-width: none;  /* Firefox */
         }
         .active-video-card {
-            border: 2px solid #ef4444; /* රතු පැහැති මායිමක් යෙදීම */
+            border: 2px solid #ef4444; /* Add a red border to the active video card */
             transform: scale(1.02);
         }
         .active-folder-btn {
             background-color: #ef4444 !important;
             color: #ffffff;
         }
-        .form-container {
-            transition: all 0.5s ease-in-out;
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-        }
-        .form-container.show {
-            max-height: 300px;
+        /* Splash Screen Styles */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #121212;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
             opacity: 1;
         }
-        .icon-plus {
-            transition: transform 0.3s ease;
-            width: 1.25rem;
-            height: 1.25rem;
+        #splash-screen.hidden {
+            opacity: 0;
+            pointer-events: none; /* Make it unclickable once faded */
         }
-        .icon-plus.minus {
-            transform: rotate(45deg);
+        #splash-screen .logo {
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+        /* Picture-in-Picture (PiP) Button Styles */
+        #toggle-pip-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 9999px;
+            padding: 8px;
+            z-index: 10;
+            transition: background-color 0.2s;
+        }
+        #toggle-pip-btn:hover {
+            background-color: rgba(0, 0, 0, 0.8);
         }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <!-- ඉහළින් ඇති සංචාලන තීරුව -->
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red" class="w-24 h-24 logo">
+            <path d="M19.615 3.326a.75.75 0 0 0-.916-.164C18.17 3.518 12 6.006 12 6.006s-6.17-2.488-6.699-2.844a.75.75 0 0 0-.916.164C3.834 4.09 3.003 6.37 3 12c0 5.63 1.002 8.01 2.385 8.674a.75.75 0 0 0 .916.164C5.83 20.482 12 17.994 12 17.994s6.17 2.488 6.699 2.844a.75.75 0 0 0 .916-.164C20.166 17.91 21 15.63 21 12c0-5.63-1.002-8.01-2.385-8.674Z" />
+        </svg>
+    </div>
+
+    <!-- Top navigation bar -->
     <header class="sticky top-0 z-50 bg-[#121212] p-4 shadow-lg border-b border-gray-800">
-        <div class="container mx-auto flex items-center justify-between">
-            <!-- වම් පැත්ත: YouTube ලාංඡනය -->
+        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
+            <!-- Left side: Logo and title -->
             <div class="flex items-center space-x-2">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red" class="w-8 h-8">
                     <path d="M19.615 3.326a.75.75 0 0 0-.916-.164C18.17 3.518 12 6.006 12 6.006s-6.17-2.488-6.699-2.844a.75.75 0 0 0-.916.164C3.834 4.09 3.003 6.37 3 12c0 5.63 1.002 8.01 2.385 8.674a.75.75 0 0 0 .916.164C5.83 20.482 12 17.994 12 17.994s6.17 2.488 6.699 2.844a.75.75 0 0 0 .916-.164C20.166 17.91 21 15.63 21 12c0-5.63-1.002-8.01-2.385-8.674Z" />
@@ -62,11 +95,21 @@
                 <span class="text-xl font-bold">වීඩියෝ</span>
             </div>
 
-            <!-- දකුණු පැත්ත: අයිකන -->
+            <!-- Center: Search input -->
+            <div class="w-full md:w-1/2 lg:w-1/3">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                        </svg>
+                    </div>
+                    <input type="text" id="search-input" placeholder="වීඩියෝ සොයන්න..."
+                           class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-700 bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors duration-200">
+                </div>
+            </div>
+
+            <!-- Right side: User icon -->
             <div class="flex items-center space-x-4">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                </svg>
                 <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-xs font-bold">
                     UN
                 </div>
@@ -74,10 +117,10 @@
         </div>
     </header>
 
-    <!-- ප්‍රධාන අන්තර්ගත ප්‍රදේශය -->
+    <!-- Main content area -->
     <main class="container mx-auto p-4 flex-grow flex flex-col items-center">
 
-        <!-- වීඩියෝ ප්ලේයර් කොටස -->
+        <!-- Video player section -->
         <div class="w-full max-w-4xl bg-[#212121] p-4 rounded-xl shadow-xl transition-all duration-300 mb-6">
             <div class="video-container relative w-full pt-[56.25%] rounded-lg overflow-hidden">
                 <iframe id="video-player"
@@ -88,55 +131,22 @@
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         allowfullscreen>
                 </iframe>
+                <!-- Picture-in-Picture button -->
+                <button id="toggle-pip-btn" class="text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l1.5-1.5m1.5 1.5l-1.5 1.5m1.5-1.5l1.5 1.5m-1.5-1.5l-1.5-1.5M21.75 12a9.75 9.75 0 1 1-19.5 0 9.75 9.75 0 0 1 19.5 0Z" />
+                    </svg>
+                </button>
             </div>
             <h2 id="video-title" class="text-xl lg:text-2xl font-bold mt-4 text-center">2026 - SFT | බලය - Day 01</h2>
         </div>
-
-        <!-- වීඩියෝ සහ ෆෝල්ඩර එකතු කිරීමේ අංග -->
-        <div class="w-full max-w-4xl bg-[#212121] p-4 rounded-xl shadow-xl flex flex-col mb-6">
-            <div class="flex justify-center gap-2 mb-2 flex-shrink-0">
-                <button id="toggle-add-folder-btn" class="bg-red-600 hover:bg-red-700 text-white rounded-full p-3 w-12 h-12 flex items-center justify-center transition-all duration-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 icon-plus">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                </button>
-                <button id="toggle-add-video-btn" class="bg-red-600 hover:bg-red-700 text-white rounded-full p-3 w-12 h-12 flex items-center justify-center transition-all duration-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 icon-plus">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                </button>
-            </div>
-
-            <!-- ෆෝල්ඩර සාදන ආකෘතිය -->
-            <div id="add-folder-form-container" class="form-container p-4 border rounded-lg border-gray-700 mb-4 flex-shrink-0">
-                <h4 class="text-lg font-bold mb-2 text-center">ෆෝල්ඩර විස්තර ඇතුළත් කරන්න</h4>
-                <input type="text" id="new-folder-name" placeholder="ෆෝල්ඩරයේ නම" class="w-full p-2 mb-2 rounded border border-gray-700 bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
-                <button id="add-folder-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200">
-                    සාදන්න
-                </button>
-            </div>
-
-            <!-- වීඩියෝ එකතු කරන ආකෘතිය -->
-            <div id="add-video-form-container" class="form-container p-4 border rounded-lg border-gray-700 flex flex-col flex-shrink-0">
-                <h4 class="text-lg font-bold mb-2 text-center">වීඩියෝ විස්තර ඇතුළත් කරන්න</h4>
-                <input type="text" id="new-video-title" placeholder="වීඩියෝවේ නම" class="w-full p-2 mb-2 rounded border border-gray-700 bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
-                <input type="text" id="new-video-id" placeholder="YouTube වීඩියෝ ID" class="w-full p-2 mb-2 rounded border border-gray-700 bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
-                <label for="folder-select" class="block text-sm font-medium mb-1">වීඩියෝව එකතු කළ යුතු ෆෝල්ඩරය තෝරන්න</label>
-                <select id="folder-select" class="w-full p-2 mb-2 rounded border border-gray-700 bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
-                    <!-- Options will be added dynamically -->
-                </select>
-                <button id="add-video-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200">
-                    එකතු කරන්න
-                </button>
-            </div>
-        </div>
         
-        <!-- ෆෝල්ඩර සහ කාණ්ඩ බොත්තම් -->
+        <!-- Folder buttons -->
         <div id="folder-buttons-container" class="w-full max-w-7xl flex flex-wrap justify-center gap-4 p-4 no-scrollbar overflow-x-auto mb-6">
             <!-- Folder buttons will be dynamically inserted here -->
         </div>
 
-        <!-- වීඩියෝ ලැයිස්තුව -->
+        <!-- Video list -->
         <div id="video-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-7xl">
             <!-- Videos will be dynamically inserted here -->
         </div>
@@ -145,22 +155,15 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const splashScreen = document.getElementById('splash-screen');
             const videoPlayer = document.getElementById('video-player');
             const videoTitle = document.getElementById('video-title');
-            const newVideoTitleInput = document.getElementById('new-video-title');
-            const newVideoIdInput = document.getElementById('new-video-id');
-            const folderSelect = document.getElementById('folder-select');
-            const addVideoBtn = document.getElementById('add-video-btn');
-            const toggleAddVideoBtn = document.getElementById('toggle-add-video-btn');
-            const addVideoFormContainer = document.getElementById('add-video-form-container');
-            const toggleAddFolderBtn = document.getElementById('toggle-add-folder-btn');
-            const addFolderFormContainer = document.getElementById('add-folder-form-container');
-            const newFolderNameInput = document.getElementById('new-folder-name');
-            const addFolderBtn = document.getElementById('add-folder-btn');
             const videoGrid = document.getElementById('video-grid');
             const folderButtonsContainer = document.getElementById('folder-buttons-container');
+            const togglePipBtn = document.getElementById('toggle-pip-btn');
+            const searchInput = document.getElementById('search-input');
 
-            // දත්ත ව්‍යුහය: ෆෝල්ඩර සහ වීඩියෝ ඇතුළත් කිරීම
+            // Hardcoded video and folder data
             const data = {
                 'සියලුම': [],
                 'බලය': [
@@ -185,14 +188,36 @@
             };
 
             let currentFolder = 'සියලුම';
+            
+            // Function to hide the splash screen
+            const hideSplashScreen = () => {
+                splashScreen.classList.add('hidden');
+                setTimeout(() => {
+                    splashScreen.remove();
+                }, 500); // Wait for the fade-out transition to finish
+            };
 
-            // වීඩියෝව වාදනය කිරීමේ කාර්යය
+            // Hide the splash screen after 2 seconds
+            setTimeout(() => {
+                hideSplashScreen();
+            }, 2000);
+
+            // Function to generate a random video duration
+            const getRandomDuration = () => {
+                const minutes = Math.floor(Math.random() * 15) + 2; // 2-16 minutes
+                const seconds = Math.floor(Math.random() * 60);
+                const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+                const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
+                return `${formattedMinutes}:${formattedSeconds}`;
+            };
+
+            // Function to play the video
             const playVideo = (videoId, videoTitleText) => {
                 const newUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&rel=0&showinfo=0&iv_load_policy=3&modestbranding=1`;
                 videoPlayer.src = newUrl;
                 videoTitle.textContent = videoTitleText;
 
-                // සක්‍රීය වීඩියෝවට මායිම් යෙදීම
+                // Add a red border to the active video card
                 document.querySelectorAll('.video-card').forEach(card => card.classList.remove('active-video-card'));
                 const selectedCard = document.querySelector(`[data-id="${videoId}"]`);
                 if (selectedCard) {
@@ -200,8 +225,9 @@
                 }
             };
             
-            // වීඩියෝ කාඩ්පතක් නිර්මාණය කිරීමේ කාර්යය
+            // Function to create a video card
             const createVideoCard = (id, title) => {
+                const duration = getRandomDuration(); // Generate a random duration
                 const card = document.createElement('div');
                 card.classList.add('video-card', 'bg-gray-800', 'p-3', 'rounded-xl', 'cursor-pointer', 'shadow-lg', 'transition-all', 'duration-300', 'hover:bg-gray-700', 'hover:scale-[1.01]', 'relative');
                 card.setAttribute('data-id', id);
@@ -209,7 +235,7 @@
                     <div class="relative w-full aspect-video rounded-xl overflow-hidden mb-3">
                         <img src="https://img.youtube.com/vi/${id}/hqdefault.jpg" alt="Video Thumbnail" class="w-full h-full object-cover">
                         <div class="absolute bottom-2 right-2 bg-gray-900 bg-opacity-75 text-white text-xs px-2 py-1 rounded-md">
-                            තත්පර 00:00
+                            ${duration}
                         </div>
                     </div>
                     <h3 class="font-semibold text-white line-clamp-2">${title}</h3>
@@ -222,12 +248,12 @@
                 return card;
             };
 
-            // ෆෝල්ඩර බොත්තම් නිර්මාණය කිරීම
+            // Function to render folder buttons
             const renderFolders = () => {
                 folderButtonsContainer.innerHTML = '';
                 const folders = Object.keys(data);
 
-                // සියලුම ෆෝල්ඩර එකතු කිරීම සඳහා සියලුම වීඩියෝ එකට එකතු කිරීම
+                // Combine all videos to create the "All" folder
                 const allVideos = folders.flatMap(folder => data[folder]);
                 data['සියලුම'] = allVideos;
                 
@@ -240,8 +266,8 @@
                     }
                     button.addEventListener('click', () => {
                         currentFolder = folderName;
-                        renderVideos(currentFolder);
-                        // Active button එක යාවත්කාලීන කිරීම
+                        renderVideos(currentFolder, searchInput.value);
+                        // Update the active button
                         document.querySelectorAll('.folder-btn').forEach(btn => btn.classList.remove('active-folder-btn'));
                         button.classList.add('active-folder-btn');
                     });
@@ -249,82 +275,51 @@
                 });
             };
 
-            // වීඩියෝ ලැයිස්තුව ප්‍රදර්ශනය කිරීම
-            const renderVideos = (folderName) => {
-                videoGrid.innerHTML = ''; // පැරණි වීඩියෝ සියල්ල ඉවත් කරයි
+            // Function to display the video list with search filtering
+            const renderVideos = (folderName, searchTerm = '') => {
+                videoGrid.innerHTML = ''; // Clear all old videos
                 const videosToRender = data[folderName] || [];
-                videosToRender.forEach(video => {
-                    videoGrid.appendChild(createVideoCard(video.id, video.title));
-                });
-                // පෙරනිමි වීඩියෝව වාදනය කිරීම
-                if (videosToRender.length > 0 && !videoPlayer.src.includes(videosToRender[0].id)) {
-                    playVideo(videosToRender[0].id, videosToRender[0].title);
-                }
-            };
-            
-            // "Add Folder" ටොගල බොත්තම සඳහා Event Listener
-            toggleAddFolderBtn.addEventListener('click', () => {
-                addFolderFormContainer.classList.toggle('show');
-                toggleAddFolderBtn.querySelector('.icon-plus').classList.toggle('minus');
-                addVideoFormContainer.classList.remove('show');
-                toggleAddVideoBtn.querySelector('.icon-plus').classList.remove('minus');
-            });
-            
-            // "Add Video" ටොගල බොත්තම සඳහා Event Listener
-            toggleAddVideoBtn.addEventListener('click', () => {
-                addVideoFormContainer.classList.toggle('show');
-                toggleAddVideoBtn.querySelector('.icon-plus').classList.toggle('minus');
-                addFolderFormContainer.classList.remove('show');
-                toggleAddFolderBtn.querySelector('.icon-plus').classList.remove('minus');
-            });
-            
-            // "Add Folder" බොත්තම සඳහා Event Listener
-            addFolderBtn.addEventListener('click', () => {
-                const folderName = newFolderNameInput.value.trim();
-                if (folderName && !data[folderName]) {
-                    data[folderName] = [];
-                    renderFolders();
-                    updateFolderDropdown(); // ෆෝල්ඩරයක් එකතු කරන විට dropdown එක යාවත්කාලීන කරන්න
-                    newFolderNameInput.value = '';
-                } else if (data[folderName]) {
-                    alert('මෙම නමින් ෆෝල්ඩරයක් දැනටමත් ඇත.');
-                }
-            });
-            
-            // "Add Video" බොත්තම සඳහා Event Listener
-            addVideoBtn.addEventListener('click', () => {
-                const newTitle = newVideoTitleInput.value.trim();
-                const newId = newVideoIdInput.value.trim();
-                const selectedFolder = folderSelect.value;
-
-                if (newTitle && newId && selectedFolder) {
-                    if (data[selectedFolder]) {
-                        const newVideo = { id: newId, title: newTitle, folder: selectedFolder };
-                        data[selectedFolder].push(newVideo);
-                        renderVideos(currentFolder); // වර්තමාන ෆෝල්ඩරය යාවත්කාලීන කරන්න
-                        newVideoTitleInput.value = '';
-                        newVideoIdInput.value = '';
-                    } else {
-                        alert('තෝරාගත් ෆෝල්ඩරය නොපවතී.');
+                const filteredVideos = videosToRender.filter(video => 
+                    video.title.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+                
+                if (filteredVideos.length > 0) {
+                    filteredVideos.forEach(video => {
+                        videoGrid.appendChild(createVideoCard(video.id, video.title));
+                    });
+                    // Play the first video in the filtered list if not already playing
+                    if (!videoPlayer.src.includes(filteredVideos[0].id)) {
+                        playVideo(filteredVideos[0].id, filteredVideos[0].title);
                     }
+                } else {
+                    // Show a message if no videos are found
+                    videoGrid.innerHTML = `<p class="text-center text-gray-400 mt-8 col-span-full">වීඩියෝ නැත.</p>`;
+                }
+            };
+            
+            // Event listener for the search input
+            searchInput.addEventListener('input', (event) => {
+                const searchTerm = event.target.value;
+                renderVideos(currentFolder, searchTerm);
+            });
+            
+            // Event listener for the Picture-in-Picture button
+            togglePipBtn.addEventListener('click', async () => {
+                try {
+                    if (document.pictureInPictureElement) {
+                        // If video is in PiP, exit it
+                        await document.exitPictureInPicture();
+                    } else if (videoPlayer.requestPictureInPicture) {
+                        // Enter PiP mode
+                        await videoPlayer.requestPictureInPicture();
+                    }
+                } catch (error) {
+                    console.error('Picture-in-Picture mode failed:', error);
                 }
             });
 
-            // ෆෝල්ඩර dropdown එක යාවත්කාලීන කිරීමේ කාර්යය
-            const updateFolderDropdown = () => {
-                folderSelect.innerHTML = '';
-                const folders = Object.keys(data).filter(folder => folder !== 'සියලුම');
-                folders.forEach(folder => {
-                    const option = document.createElement('option');
-                    option.value = folder;
-                    option.textContent = folder;
-                    folderSelect.appendChild(option);
-                });
-            };
-
-            // පිටුව load වන විට සියලුම අංග නිර්මාණය කරයි
+            // On page load, create all elements
             renderFolders();
-            updateFolderDropdown();
             renderVideos('සියලුම');
         });
     </script>
