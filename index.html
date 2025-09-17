@@ -12,6 +12,9 @@
             font-family: 'Inter', sans-serif;
             background-color: #121212; /* Dark background */
             color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         /* Custom scrollbar styles for a cleaner look */
         .no-scrollbar::-webkit-scrollbar {
@@ -21,12 +24,15 @@
             -ms-overflow-style: none;  /* IE and Edge */
             scrollbar-width: none;  /* Firefox */
         }
+        /* Highlight the active video card with a vibrant border and shadow */
         .active-video-card {
-            border: 2px solid #ef4444; /* Add a red border to the active video card */
+            border: 2px solid #ec4899; /* Fuchsia-500 */
+            box-shadow: 0 0 15px rgba(236, 72, 153, 0.5);
             transform: scale(1.02);
         }
+        /* Highlight the active folder button with matching background */
         .active-folder-btn {
-            background-color: #ef4444 !important;
+            background-color: #ec4899 !important; /* Fuchsia-500 */
             color: #ffffff;
         }
         /* Splash Screen Styles */
@@ -46,7 +52,7 @@
         }
         #splash-screen.hidden {
             opacity: 0;
-            pointer-events: none; /* Make it unclickable once faded */
+            pointer-events: none;
         }
         #splash-screen .logo {
             animation: pulse 1.5s infinite ease-in-out;
@@ -59,27 +65,13 @@
                 transform: scale(1.1);
             }
         }
-        /* Picture-in-Picture (PiP) Button Styles */
-        #toggle-pip-btn {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background-color: rgba(0, 0, 0, 0.6);
-            border-radius: 9999px;
-            padding: 8px;
-            z-index: 10;
-            transition: background-color 0.2s;
-        }
-        #toggle-pip-btn:hover {
-            background-color: rgba(0, 0, 0, 0.8);
-        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
     <!-- Splash Screen -->
     <div id="splash-screen">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red" class="w-24 h-24 logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899" class="w-24 h-24 logo">
             <path d="M19.615 3.326a.75.75 0 0 0-.916-.164C18.17 3.518 12 6.006 12 6.006s-6.17-2.488-6.699-2.844a.75.75 0 0 0-.916.164C3.834 4.09 3.003 6.37 3 12c0 5.63 1.002 8.01 2.385 8.674a.75.75 0 0 0 .916.164C5.83 20.482 12 17.994 12 17.994s6.17 2.488 6.699 2.844a.75.75 0 0 0 .916-.164C20.166 17.91 21 15.63 21 12c0-5.63-1.002-8.01-2.385-8.674Z" />
         </svg>
     </div>
@@ -89,7 +81,7 @@
         <div class="container mx-auto flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
             <!-- Left side: Logo and title -->
             <div class="flex items-center space-x-2">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red" class="w-8 h-8">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899" class="w-8 h-8">
                     <path d="M19.615 3.326a.75.75 0 0 0-.916-.164C18.17 3.518 12 6.006 12 6.006s-6.17-2.488-6.699-2.844a.75.75 0 0 0-.916.164C3.834 4.09 3.003 6.37 3 12c0 5.63 1.002 8.01 2.385 8.674a.75.75 0 0 0 .916.164C5.83 20.482 12 17.994 12 17.994s6.17 2.488 6.699 2.844a.75.75 0 0 0 .916-.164C20.166 17.91 21 15.63 21 12c0-5.63-1.002-8.01-2.385-8.674Z" />
                 </svg>
                 <span class="text-xl font-bold">වීඩියෝ</span>
@@ -104,14 +96,7 @@
                         </svg>
                     </div>
                     <input type="text" id="search-input" placeholder="වීඩියෝ සොයන්න..."
-                           class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-700 bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors duration-200">
-                </div>
-            </div>
-
-            <!-- Right side: User icon -->
-            <div class="flex items-center space-x-4">
-                <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-xs font-bold">
-                    UN
+                           class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-700 bg-gray-800 text-gray-100 focus:outline-none focus:ring-2 focus:ring-fuchsia-500 transition-colors duration-200">
                 </div>
             </div>
         </div>
@@ -128,15 +113,9 @@
                         src="https://www.youtube.com/embed/hVhFGjCgNpk?controls=1&rel=0&showinfo=0&iv_load_policy=3&modestbranding=1"
                         title="YouTube video player"
                         frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; web-share"
                         allowfullscreen>
                 </iframe>
-                <!-- Picture-in-Picture button -->
-                <button id="toggle-pip-btn" class="text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l1.5-1.5m1.5 1.5l-1.5 1.5m1.5-1.5l1.5 1.5m-1.5-1.5l-1.5-1.5M21.75 12a9.75 9.75 0 1 1-19.5 0 9.75 9.75 0 0 1 19.5 0Z" />
-                    </svg>
-                </button>
             </div>
             <h2 id="video-title" class="text-xl lg:text-2xl font-bold mt-4 text-center">2026 - SFT | බලය - Day 01</h2>
         </div>
@@ -147,7 +126,7 @@
         </div>
 
         <!-- Video list -->
-        <div id="video-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-7xl">
+        <div id="video-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full max-w-7xl">
             <!-- Videos will be dynamically inserted here -->
         </div>
 
@@ -160,7 +139,6 @@
             const videoTitle = document.getElementById('video-title');
             const videoGrid = document.getElementById('video-grid');
             const folderButtonsContainer = document.getElementById('folder-buttons-container');
-            const togglePipBtn = document.getElementById('toggle-pip-btn');
             const searchInput = document.getElementById('search-input');
 
             // Hardcoded video and folder data
@@ -183,6 +161,9 @@
                     { id: 'uhyluBMs1Z0', title: '2026 - SFT | බලය - Day 13 (B)', folder: 'බලය' },
                     { id: 'hjt4uZeAqNU', title: '2026 - SFT | බලය - Day 14', folder: 'බලය' },
                     { id: 'a8oMOwgbYvU', title: '2026 - SFT | බලය - Day 15', folder: 'බලය' },
+                    { id: 'SjiEfKsjkAg', title: '2026 AL - බලය - Day 16', folder: 'බලය' },
+                    { id: 'YzvdGuaPTU8', title: '2026 AL - බලය - Day 17', folder: 'බලය' },
+                    { id: 'jzGQCF7ZYSE', title: '2026 AL - බලය - Day 18', folder: 'බලය' }
                 ],
                 'Chemistry': [],
             };
@@ -204,7 +185,7 @@
 
             // Function to generate a random video duration
             const getRandomDuration = () => {
-                const minutes = Math.floor(Math.random() * 15) + 2; // 2-16 minutes
+                const minutes = Math.floor(Math.random() * 15) + 2;
                 const seconds = Math.floor(Math.random() * 60);
                 const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
                 const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
@@ -217,7 +198,6 @@
                 videoPlayer.src = newUrl;
                 videoTitle.textContent = videoTitleText;
 
-                // Add a red border to the active video card
                 document.querySelectorAll('.video-card').forEach(card => card.classList.remove('active-video-card'));
                 const selectedCard = document.querySelector(`[data-id="${videoId}"]`);
                 if (selectedCard) {
@@ -227,7 +207,7 @@
             
             // Function to create a video card
             const createVideoCard = (id, title) => {
-                const duration = getRandomDuration(); // Generate a random duration
+                const duration = getRandomDuration();
                 const card = document.createElement('div');
                 card.classList.add('video-card', 'bg-gray-800', 'p-3', 'rounded-xl', 'cursor-pointer', 'shadow-lg', 'transition-all', 'duration-300', 'hover:bg-gray-700', 'hover:scale-[1.01]', 'relative');
                 card.setAttribute('data-id', id);
@@ -253,7 +233,6 @@
                 folderButtonsContainer.innerHTML = '';
                 const folders = Object.keys(data);
 
-                // Combine all videos to create the "All" folder
                 const allVideos = folders.flatMap(folder => data[folder]);
                 data['සියලුම'] = allVideos;
                 
@@ -267,7 +246,6 @@
                     button.addEventListener('click', () => {
                         currentFolder = folderName;
                         renderVideos(currentFolder, searchInput.value);
-                        // Update the active button
                         document.querySelectorAll('.folder-btn').forEach(btn => btn.classList.remove('active-folder-btn'));
                         button.classList.add('active-folder-btn');
                     });
@@ -277,7 +255,7 @@
 
             // Function to display the video list with search filtering
             const renderVideos = (folderName, searchTerm = '') => {
-                videoGrid.innerHTML = ''; // Clear all old videos
+                videoGrid.innerHTML = '';
                 const videosToRender = data[folderName] || [];
                 const filteredVideos = videosToRender.filter(video => 
                     video.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -287,12 +265,10 @@
                     filteredVideos.forEach(video => {
                         videoGrid.appendChild(createVideoCard(video.id, video.title));
                     });
-                    // Play the first video in the filtered list if not already playing
                     if (!videoPlayer.src.includes(filteredVideos[0].id)) {
                         playVideo(filteredVideos[0].id, filteredVideos[0].title);
                     }
                 } else {
-                    // Show a message if no videos are found
                     videoGrid.innerHTML = `<p class="text-center text-gray-400 mt-8 col-span-full">වීඩියෝ නැත.</p>`;
                 }
             };
@@ -303,21 +279,6 @@
                 renderVideos(currentFolder, searchTerm);
             });
             
-            // Event listener for the Picture-in-Picture button
-            togglePipBtn.addEventListener('click', async () => {
-                try {
-                    if (document.pictureInPictureElement) {
-                        // If video is in PiP, exit it
-                        await document.exitPictureInPicture();
-                    } else if (videoPlayer.requestPictureInPicture) {
-                        // Enter PiP mode
-                        await videoPlayer.requestPictureInPicture();
-                    }
-                } catch (error) {
-                    console.error('Picture-in-Picture mode failed:', error);
-                }
-            });
-
             // On page load, create all elements
             renderFolders();
             renderVideos('සියලුම');
